@@ -4,13 +4,8 @@
 [![Docs.rs](https://docs.rs/top_few/badge.svg)](https://docs.rs/top_few)
 [![CI](https://github.com/NicholasSterling/top_few/workflows/CI/badge.svg)](https://github.com/NicholasSterling/top_few/actions)
 
-## Installation
-
-### Cargo
-
-* Install the rust toolchain in order to have cargo installed by following
-  [this](https://www.rust-lang.org/tools/install) guide.
-* run `cargo install top_few`
+A library that allows you to get the top elements from a stream of them very efficiently.
+It is still under development.
 
 ## License
 
