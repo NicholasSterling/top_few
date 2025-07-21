@@ -42,7 +42,6 @@
 //! if it has not seen 16 values larger than the cutoff.
 
 // TODO:
-// - Jujutsu repo
 // - Move API tests to a separate file.
 // - .max() should return an Option, right?
 // - Extension method for Iterator, e.g. nums.iter().top16(cutoff).
@@ -57,9 +56,10 @@
 // - faster than .take(): top(5) and bottom(5) methods.
 // - doc tests
 // - README.md and docs
-// - Check the assembly language.  Index unchecked?  Binary search?  max() doesn't mask?
 // - Top8
 // - API Guidelines Checklist
+// - Check the assembly language.  Index unchecked?  Binary search?  max() doesn't mask?
+// Godbolt: https://godbolt.org/z/7er6vYjax
 
 const NUM: usize = 16; // number of elements and indices
 const IX_BITS: u32 = 4; // bits to hold an index
@@ -178,10 +178,13 @@ impl Top16 {
         let mut shift = 32u32;
         let le = |shift| (value <= self.element_at(shift)) as u32;
         // shift = shift + a.cmp(b) as u64 * 4 * IX_BITS;  // << 4;
-        shift = shift + 4 * IX_BITS - (le(shift) << 5); // - 0 | 8 * IX_BITS
-        shift = shift + 2 * IX_BITS - (le(shift) << 4); // - 0 | 4 * IX_BITS
-        shift = shift + 1 * IX_BITS - (le(shift) << 3); // - 0 | 2 * IX_BITS
-        shift = shift + 0 * IX_BITS - (le(shift) << 2); // - 0 | 1 * IX_BITS
+        #[allow(clippy::identity_op, clippy::erasing_op)]
+        {
+            shift = shift + 4 * IX_BITS - (le(shift) << 5); //   - (0 | 8) * IX_BITS
+            shift = shift + 2 * IX_BITS - (le(shift) << 4); //   - (0 | 4) * IX_BITS
+            shift = shift + 1 * IX_BITS - (le(shift) << 3); //   - (0 | 2) * IX_BITS
+            shift = shift + 0 * IX_BITS - (le(shift) << 2); //   - (0 | 1) * IX_BITS
+        }
 
         // Insert the new value's index at the found shift.
         // E.g. if shift = 48 and sorted_ixs = 0xFEDCBA9876543210,
@@ -216,7 +219,7 @@ impl Top16 {
             fwd_shift += IX_BITS;
         }
         Iter {
-            top: &self,
+            top: self,
             fwd_shift,
             bwd_shift: IXS_BITS,
         }
