@@ -218,6 +218,7 @@ impl Top16 {
     }
 
     /// Returns an Iterator over the top n elements (or less if there are less), in descending order.
+    /// top16.take(n) is equivalent to top16.iter().take(n), but more efficient.
     #[inline]
     pub fn take(&self, n: u32) -> Iter {
         self.make_iter((16 - 16.min(n)) * IX_BITS)
