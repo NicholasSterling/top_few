@@ -211,10 +211,21 @@ impl Top16 {
         ((shift >> 2) + 1) as usize
     }
 
-    /// Returns an Iterator over the top 16 elements, in descending order.
+    /// Returns an Iterator over the top 16 elements (or less if there are less), in descending order.
+    #[inline]
     pub fn iter(&self) -> Iter {
+        self.make_iter(0)
+    }
+
+    /// Returns an Iterator over the top n elements (or less if there are less), in descending order.
+    #[inline]
+    pub fn take(&self, n: u32) -> Iter {
+        self.make_iter((16 - 16.min(n)) * IX_BITS)
+    }
+
+    // Does the actual work of creating an iterator.
+    fn make_iter(&self, mut fwd_shift: u32) -> Iter {
         // Have to skip over any cutoff values (there shouldn't be anything lower).
-        let mut fwd_shift = 0u32;
         while fwd_shift < IXS_BITS && self.element_at(fwd_shift) <= self.cutoff {
             fwd_shift += IX_BITS;
         }
@@ -371,6 +382,32 @@ mod tests {
         }
         let elements: Vec<u32> = it.iter().rev().collect();
         let expected: Vec<u32> = vec![2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9];
+        assert_eq!(elements, expected);
+    }
+
+    #[test]
+    fn take() {
+        let mut it = Top16::new(0);
+
+        // Check that the iterator is empty at the start.
+        let elements: Vec<u32> = it.iter().collect();
+        assert_eq!(elements, [0u32; 0]);
+
+        // Add some elements in ascending order.
+        for i in 1..20 {
+            it.see(i);
+        }
+
+        // Forward iterator.
+        let elements: Vec<u32> = it.take(5).collect();
+        // dbg!(&elements);
+        let expected: Vec<u32> = (15..20).rev().collect();
+        assert_eq!(elements, expected);
+
+        // Reverse iterator.
+        let elements: Vec<u32> = it.take(5).rev().collect();
+        // dbg!(&elements);
+        let expected: Vec<u32> = (15..20).collect();
         assert_eq!(elements, expected);
     }
 
