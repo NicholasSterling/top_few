@@ -436,7 +436,7 @@ mod tests {
 
     #[test]
     fn test_get_top_16_via_heap() {
-        let top_16 = get_top_16_via_heap((1..=20).into_iter());
+        let top_16 = get_top_16_via_heap(1..=20);
         let expected = vec![20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5];
         assert_eq!(top_16, expected);
     }
