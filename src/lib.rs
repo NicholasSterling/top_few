@@ -246,18 +246,17 @@ impl Top16 {
 // Custom Debug implementation to show sorted_ixs as hex.
 impl Debug for Top16 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // Show the sorted indices as hex.
-        write!(f, "Top16 {{ cutoff: {}, elements: [", self.cutoff)?;
+        write!(f, "Top16 {{ cutoff: {}, threshold: {}, sorted_ixs: {:016X}, elements: [", self.cutoff, self.threshold, self.sorted_ixs)?;
         for (i, &v) in self.elements.iter().enumerate() {
             if i > 0 {
                 write!(f, ", ")?;
-            }
-            if i == 8 {
-                write!(f, " ")?;
+                if i % 4 == 0 {
+                    write!(f, " ")?;
+                }
             }
             write!(f, "{v:?}")?;
         }
-        write!(f, "], sorted_ixs: {:016X} }}", self.sorted_ixs)
+        write!(f, "]}}")
     }
 }
 
@@ -322,6 +321,7 @@ mod tests {
         // Forward iterator.
         let elements: Vec<u32> = it.iter().collect();
         dbg!(&it);
+        // dbg!(&elements);
         let expected: Vec<u32> = (4..20).rev().collect();
         assert_eq!(elements, expected);
 
