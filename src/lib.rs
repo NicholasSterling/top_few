@@ -246,7 +246,11 @@ impl Top16 {
 // Custom Debug implementation to show sorted_ixs as hex.
 impl Debug for Top16 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Top16 {{ cutoff: {}, threshold: {}, sorted_ixs: {:016X}, elements: [", self.cutoff, self.threshold, self.sorted_ixs)?;
+        write!(
+            f,
+            "Top16 {{ cutoff: {}, threshold: {}, sorted_ixs: {:016X}, elements: [",
+            self.cutoff, self.threshold, self.sorted_ixs
+        )?;
         for (i, &v) in self.elements.iter().enumerate() {
             if i > 0 {
                 write!(f, ", ")?;
