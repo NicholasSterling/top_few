@@ -255,7 +255,7 @@ impl Debug for Top16 {
             if i == 8 {
                 write!(f, " ")?;
             }
-            write!(f, "{:?}", v)?;
+            write!(f, "{v:?}")?;
         }
         write!(f, "], sorted_ixs: {:016X} }}", self.sorted_ixs)
     }
