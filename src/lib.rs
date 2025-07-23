@@ -14,8 +14,10 @@
 //! will be considered.  So, for example, if you are using u32 values
 //! and specify 0 as the cutoff, then 0s will never be included in the result,
 //! even if all the values seen were 0.
-//! If you really needed to include 0s in the result,
-//! you could use Option<u32> values with None as the cutoff value.
+//! If you really need to include 0s in the result,
+//! you can use Option<u32> values with None as the cutoff value.
+//! Or you could use (u32, u32) values, where the second u32 is a counter,
+//! with (0,0) as the cutoff value.
 //!
 //! Having a cutoff value helps performance in a few ways.
 //! We initialize the list to the cutoff value, so we always have 16 values,
@@ -61,12 +63,14 @@
 // - Check the assembly language.  Index unchecked?  Binary search?  max() doesn't mask?
 // Godbolt: https://godbolt.org/z/7er6vYjax
 
+use std::fmt::Debug;
+
 const NUM: usize = 16; // number of elements and indices
 const IX_BITS: u32 = 4; // bits to hold an index
 const IX_MASK: u64 = (1 << IX_BITS) - 1; // mask for extracting an index, e.g. 0xF
 const IXS_BITS: u32 = NUM as u32 * IX_BITS; // 64 bits for 16 indices
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Clone, Copy)]
 pub struct Top16 {
     // The top elements, unordered.
     elements: [u32; NUM],
@@ -127,8 +131,9 @@ impl Top16 {
 
     /// Returns the largest element in the top 16.
     #[inline]
-    pub fn max(&self) -> u32 {
-        self.element_at(IXS_BITS - IX_BITS)
+    pub fn max(&self) -> Option<u32> {
+        let v = self.element_at(IXS_BITS - IX_BITS);
+        (v > self.cutoff).then_some(v)
     }
 
     // Returns the index at the specified shift in the sorted indices.
@@ -238,6 +243,24 @@ impl Top16 {
     }
 }
 
+// Custom Debug implementation to show sorted_ixs as hex.
+impl Debug for Top16 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // Show the sorted indices as hex.
+        write!(f, "Top16 {{ cutoff: {}, elements: [", self.cutoff)?;
+        for (i, &v) in self.elements.iter().enumerate() {
+            if i > 0 {
+                write!(f, ", ")?;
+            }
+            if i == 8 {
+                write!(f, " ")?;
+            }
+            write!(f, "{:?}", v)?;
+        }
+        write!(f, "], sorted_ixs: {:016X} }}", self.sorted_ixs)
+    }
+}
+
 /// Iterator for a Top16.  It returns the top 16 elements in descending order.
 /// The iterator is double-ended, so you can use .rev() to get ascending order.
 /// Note that the iterator will only return values larger than the cutoff value.
@@ -298,7 +321,7 @@ mod tests {
 
         // Forward iterator.
         let elements: Vec<u32> = it.iter().collect();
-        // dbg!(&elements);
+        dbg!(&it);
         let expected: Vec<u32> = (4..20).rev().collect();
         assert_eq!(elements, expected);
 
