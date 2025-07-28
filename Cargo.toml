@@ -22,7 +22,7 @@ full = []
 [dependencies]
 
 [dev-dependencies]
-criterion = "0.6.0"
+criterion = "0.7.0"
 pretty_assertions = "1"
 proptest = "1"
 
