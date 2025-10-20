@@ -22,9 +22,10 @@ full = []
 [dependencies]
 
 [dev-dependencies]
-criterion = "0.6.0"
+criterion = "0.7.0"
 pretty_assertions = "1"
 proptest = "1"
+topset = "0.4.0"
 
 [package.metadata.cargo-udeps.ignore]
 development = ["criterion", "pretty_assertions", "proptest"]
