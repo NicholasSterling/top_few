@@ -135,17 +135,28 @@ impl Top16 {
     /// element and 16 for the largest element.  That way you can, for example,
     /// easily trigger special behavior if the value is in the top 5.
     #[inline]
-    pub fn see(&mut self, value: u32) -> usize {
+    pub fn rank(&mut self, value: u32) -> usize {
         // If the value is not greater than the threshold, then it is not in the top 16.
         // We separate this check from the rest of the logic so that it will be inlined.
         if value <= self.threshold {
             0
         } else {
-            self.see_helper(value) // the optimizer will just fall through here
+            ((self.see_helper(value) >> 2) + 1) as usize
         }
     }
 
-    fn see_helper(&mut self, value: u32) -> usize {
+    /// Considers a new value to see if is one of the top 16.
+    /// If so, it is added to the list.
+    #[inline]
+    pub fn see(&mut self, value: u32) {
+        // If the value is not greater than the threshold, then it is not in the top 16.
+        // We separate this check from the rest of the logic so that it will be inlined.
+        if value > self.threshold {
+            self.see_helper(value);
+        }
+    }
+
+    fn see_helper(&mut self, value: u32) -> u32 {
         // Perform a binary search to find the bit position for the new value's index
         // among the sorted indices.  This diagram depicts the search pattern.
         // 0    4    8    12   16   20   24   28   32   36   40   44   48   52   56   60
@@ -193,7 +204,7 @@ impl Top16 {
         self.threshold = self.element_at(0); // always >= the previous value
 
         // dbg!(&self.elements[0..4]);
-        ((shift >> 2) + 1) as usize
+        shift
     }
 
     /// Returns an Iterator over the top 16 elements (or less if there are less), in descending order.

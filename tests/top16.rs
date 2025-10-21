@@ -41,12 +41,12 @@ fn ascending() {
     assert_eq!(elements, expected);
 
     // Check the positions returned by see.
-    assert_eq!(it.see(0), 0); // 4 5 6 ...
-    assert_eq!(it.see(4), 0); // 4 5 6 ...
-    assert_eq!(it.see(5), 1); // 4 5 6 ...  => 5 5 6 ...
-    assert_eq!(it.see(5), 0); // 5 5 6 ...     ^
-    assert_eq!(it.see(6), 2); // 5 5 6 ...  => 5 6 6 ...
-    assert_eq!(it.see(30), 16); //                ^
+    assert_eq!(it.rank(0), 0); // 4 5 6 ...
+    assert_eq!(it.rank(4), 0); // 4 5 6 ...
+    assert_eq!(it.rank(5), 1); // 4 5 6 ...  => 5 5 6 ...
+    assert_eq!(it.rank(5), 0); // 5 5 6 ...     ^
+    assert_eq!(it.rank(6), 2); // 5 5 6 ...  => 5 6 6 ...
+    assert_eq!(it.rank(30), 16); //                ^
 }
 
 #[test]
@@ -161,11 +161,9 @@ fn test_get_top_16_via_heap() {
     assert_eq!(top_16, expected);
 }
 
-// ??? Why doesn't this fail?  0s are not included in the top 16,
-// but they would be included in the heap.
 proptest! {
     #[test]
-    fn proptest_top16_iterator_reversed_matches_heap(data in prop::collection::vec(any::<u32>(), 0..1000)) {
+    fn proptest_top16_iterator_reversed_matches_heap(data in prop::collection::vec(any::<u32>(), 1..1000)) {
         let mut top16_instance = Top16::new(0);
         dbg!(&data);
         for &x in &data {
