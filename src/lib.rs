@@ -64,4 +64,4 @@
 
 pub mod top16;
 
-pub use top16::{Top16, Iter};
+pub use top16::{Iter, Top16};

@@ -240,7 +240,8 @@ impl Debug for Top16 {
         write!(
             f,
             "Top16 {{ cutoff: {}, threshold: {}, sorted_ixs: {:016X}, elements: [",
-            self.cutoff, self.threshold, self.sorted_ixs )?;
+            self.cutoff, self.threshold, self.sorted_ixs
+        )?;
         for (i, &v) in self.elements.iter().enumerate() {
             if i > 0 {
                 write!(f, ", ")?;

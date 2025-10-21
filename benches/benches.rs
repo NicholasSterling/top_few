@@ -1,4 +1,6 @@
-use criterion::{Criterion, criterion_group, criterion_main, BenchmarkId, PlotConfiguration, AxisScale};
+use criterion::{
+    AxisScale, BenchmarkId, Criterion, PlotConfiguration, criterion_group, criterion_main,
+};
 use std::hint::black_box;
 use top_few::Top16;
 use topset::TopSet;
@@ -22,16 +24,15 @@ fn generate_worst_case_data(size: usize) -> Vec<u32> {
 }
 
 fn benchmark_random_data(c: &mut Criterion) {
-    let plot_config = PlotConfiguration::default()
-        .summary_scale(AxisScale::Logarithmic);
-    
+    let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
+
     let mut group = c.benchmark_group("random_data");
     group.sample_size(10);
     group.plot_config(plot_config);
-    
+
     for size in [10_000, 100_000, 1_000_000].iter() {
         let data = black_box(generate_random_data(*size, 42));
-        
+
         group.bench_with_input(BenchmarkId::new("top16", size), size, |b, _| {
             b.iter(|| {
                 let mut top = Top16::new(0);
@@ -40,7 +41,7 @@ fn benchmark_random_data(c: &mut Criterion) {
                 }
             });
         });
-        
+
         group.bench_with_input(BenchmarkId::new("topset", size), size, |b, _| {
             b.iter(|| {
                 let mut top = TopSet::new(16, |a: &u32, b: &u32| b < a);
@@ -50,21 +51,20 @@ fn benchmark_random_data(c: &mut Criterion) {
             });
         });
     }
-    
+
     group.finish();
 }
 
 fn benchmark_worst_case(c: &mut Criterion) {
-    let plot_config = PlotConfiguration::default()
-        .summary_scale(AxisScale::Logarithmic);
-    
+    let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
+
     let mut group = c.benchmark_group("worst_case");
     group.sample_size(10);
     group.plot_config(plot_config);
-    
+
     for size in [10_000, 100_000, 1_000_000].iter() {
         let data = black_box(generate_worst_case_data(*size));
-        
+
         group.bench_with_input(BenchmarkId::new("top16", size), size, |b, _| {
             b.iter(|| {
                 let mut top = Top16::new(0);
@@ -73,7 +73,7 @@ fn benchmark_worst_case(c: &mut Criterion) {
                 }
             });
         });
-        
+
         group.bench_with_input(BenchmarkId::new("topset", size), size, |b, _| {
             b.iter(|| {
                 let mut top = TopSet::new(16, |a: &u32, b: &u32| b < a);
@@ -83,7 +83,7 @@ fn benchmark_worst_case(c: &mut Criterion) {
             });
         });
     }
-    
+
     group.finish();
 }
 
